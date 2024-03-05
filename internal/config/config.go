@@ -20,12 +20,12 @@ func fileExists(filename string) bool {
 
 func CreateDefaultConfig() error {
 	log.Println("Config file is missing. Creating default config")
-	input, err := os.ReadFile("./.env.default")
+	input, err := os.ReadFile("../.env.default")
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile("./.env", input, 0644)
+	err = os.WriteFile("../.env", input, 0644)
 	if err != nil {
 		return err
 	}
