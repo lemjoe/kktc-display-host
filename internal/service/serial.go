@@ -7,41 +7,46 @@ import (
 	"github.com/tarm/serial"
 )
 
-func OpenConnection(config models.ConfigApp) *serial.Port {
-	c := &serial.Config{Name: config.PortName, Baud: config.BaudRate}
-	s, err := serial.OpenPort(c)
+type serialService struct {
+	port models.SerialConnection
+}
+
+func OpenConnection(config models.ConfigApp) serialService {
+	conf := &serial.Config{Name: config.PortName, Baud: config.BaudRate}
+	s, err := serial.OpenPort(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return s
+	connection := models.SerialConnection{Serial: s}
+	return serialService{port: connection}
 }
 
-func CloseConnection(port *serial.Port) {
-	err := port.Close()
+func CloseConnection(conn serialService) {
+	err := conn.port.Serial.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func WriteToSeial(port *serial.Port, msg []byte) error {
-	_, err := port.Write(msg)
+func (c serialService) WriteToSeial(msg []byte) (string, error) {
+	_, err := c.port.Serial.Write(msg)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return string(msg), nil
 }
 
-func ReadFromSeial(port *serial.Port) ([]byte, error) {
+func (c serialService) ReadFromSeial() ([]byte, error) {
 	buf := make([]byte, 128)
-	_, err := port.Read(buf)
+	_, err := c.port.Serial.Read(buf)
 	if err != nil {
 		return nil, err
 	}
 	return buf, nil
 }
 
-func Flush(port *serial.Port) error {
-	err := port.Flush()
+func (c serialService) Flush() error {
+	err := c.port.Serial.Flush()
 	if err != nil {
 		return err
 	}
