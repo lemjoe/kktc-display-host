@@ -7,10 +7,14 @@ import (
 	"time"
 )
 
-// type communicationService struct {
-// }
-
 func StartCommunication(conn serialService) error {
+
+	testMessages := [3]string{
+		strconv.Itoa(time.Now().Year()) + fmt.Sprintf("%02d", time.Now().Month()) + fmt.Sprintf("%02d", time.Now().Day()) + fmt.Sprintf("%02d", time.Now().Hour()) + fmt.Sprintf("%02d", time.Now().Minute()) + "270Clear10",
+		"20000850",
+		"005845670 25",
+	}
+
 	for {
 		input, err := serialService.ReadFromSeial(conn)
 		if err != nil {
@@ -19,32 +23,31 @@ func StartCommunication(conn serialService) error {
 		log.Println("Input: " + string(input[0]))
 		switch in := string(input[0]); in {
 		case "L":
-			output, err := serialService.WriteToSeial(conn, []byte("rdy"))
+			output, err := conn.WriteToSeial([]byte("rdy"))
 			if err != nil {
 				return err
 			}
 			log.Println("Output: " + output)
 		case "0":
-			msg := strconv.Itoa(time.Now().Year()) + fmt.Sprintf("%02d", time.Now().Month()) + fmt.Sprintf("%02d", time.Now().Day()) + fmt.Sprintf("%02d", time.Now().Hour()) + fmt.Sprintf("%02d", time.Now().Minute()) + "270Clear10"
-			output, err := serialService.WriteToSeial(conn, []byte(msg))
+			output, err := conn.WriteToSeial([]byte(testMessages[0]))
 			if err != nil {
 				return err
 			}
 			log.Println("Output: " + output)
 		case "1":
-			output, err := serialService.WriteToSeial(conn, []byte("20000850"))
+			output, err := conn.WriteToSeial([]byte(testMessages[1]))
 			if err != nil {
 				return err
 			}
 			log.Println("Output: " + output)
 		case "2":
-			output, err := serialService.WriteToSeial(conn, []byte("005845670 25"))
+			output, err := conn.WriteToSeial([]byte(testMessages[2]))
 			if err != nil {
 				return err
 			}
 			log.Println("Output: " + output)
 		default:
-			err = serialService.Flush(conn)
+			err = conn.Flush()
 			if err != nil {
 				return err
 			}
